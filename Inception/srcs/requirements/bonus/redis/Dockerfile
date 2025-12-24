@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:3.22
 
 ARG WP_REDIS_PASSWORD
 

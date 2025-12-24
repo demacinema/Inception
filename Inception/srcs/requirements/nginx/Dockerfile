@@ -1,5 +1,5 @@
 # Use the specified version of Alpine
-FROM alpine:3.19.2
+FROM alpine:3.22
 
 # Install Nginx, OpenSSL, and Bash
 RUN apk update && \

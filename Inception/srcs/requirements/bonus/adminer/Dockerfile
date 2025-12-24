@@ -1,4 +1,4 @@
-FROM alpine:3.19.2
+FROM alpine:3.22
 
 ARG PHP_VERSION=82
 
