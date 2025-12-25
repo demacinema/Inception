@@ -18,6 +18,7 @@ if [ ! -e .firstmount ]; then
         echo "Installing WordPress..."
 
         # Download and configure WordPress
+        sed -i 's/^memory_limit = .*/memory_limit = 512M/' /etc/php82/php.ini
         wp core download --allow-root || true
         wp config create --allow-root \
             --dbhost=mariadb \
@@ -49,3 +50,7 @@ fi
 
 # Start PHP-FPM
 exec /usr/sbin/php-fpm82 -F
+
+
+#Make sure /home/demrodri/data/wordpress 
+#is owned by your user and is empty before first install.
