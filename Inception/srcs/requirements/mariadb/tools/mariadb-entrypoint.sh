@@ -1,39 +1,57 @@
 #!/bin/bash
 set -e
 
-# On the first container run, configure the server to be reachable by other
-# containers
-if [ ! -e /etc/.firstrun ]; then
-    cat << EOF >> /etc/my.cnf.d/mariadb-server.cnf
-[mysqld]
-bind-address=0.0.0.0
-skip-networking=0
-EOF
-    touch /etc/.firstrun
-fi
+# Path to the .firstrun file
+FIRST_RUN_FLAG="/var/lib/mysql/.firstrun"
 
-# On the first volume mount, create a database in it
-if [ ! -e /var/lib/mysql/.firstmount ]; then
-    # Initialize a database on the volume and start MariaDB in the background
-    mysql_install_db --datadir=/var/lib/mysql --skip-test-db --user=mysql --group=mysql \
-        --auth-root-authentication-method=socket >/dev/null 2>/dev/null
+# **NEW**: Set the root password explicitly if not already set
+ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+
+# Check if this is the first run by looking for the .firstrun file
+if [ ! -e "$FIRST_RUN_FLAG" ]; then
+    echo "First run detected, initializing the database..."
+
+    # Fix permissions on the MySQL data directory (important)
+    chown -R mysql:mysql /var/lib/mysql
+
+    # Initialize the database if it's the first run
+    mysql_install_db --datadir=/var/lib/mysql --user=mysql --skip-test-db --auth-root-authentication-method=socket
+
+    # Start the MariaDB server in the background to allow for database creation
     mysqld_safe &
     mysqld_pid=$!
 
-    # Wait for the server to be started, then set up database and accounts
-    mysqladmin ping -u root --silent --wait >/dev/null 2>/dev/null
-    cat << EOF | mysql --protocol=socket -u root -p=
-CREATE DATABASE $MYSQL_DATABASE;
-CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%';
-GRANT ALL PRIVILEGES on *.* to 'root'@'%' IDENTIFIED BY '$MYSQL_ROOT_PASSWORD';
-FLUSH PRIVILEGES;
-EOF
+    # Wait for MariaDB to be ready for connections
+    echo "Waiting for MariaDB to be ready..."
+    until mysql --protocol=socket -u root -e "SELECT 1;" > /dev/null 2>&1; do
+        echo "MariaDB is not yet ready, retrying..."
+        sleep 1
+    done
+    echo "MariaDB is ready."
 
-    # Shut down the temporary server and mark the volume as initialized
-    mysqladmin shutdown
-    touch /var/lib/mysql/.firstmount
+    # Create the database if not exists
+    echo "Creating database ${MYSQL_DATABASE} if not exists..."
+    mysql --protocol=socket -u root -e "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};"
+
+    # Create the user if not exists and grant privileges
+    echo "Creating user ${MYSQL_USER} if not exists..."
+    mysql --protocol=socket -u root -e "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+    mysql --protocol=socket -u root -e "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';"
+
+    # **NEW**: Set root password explicitly (this was missing before)
+    echo "Setting password for root user..."
+    mysql --protocol=socket -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${ROOT_PASSWORD}';"
+
+    # Mark the database initialization as done by creating the .firstrun file
+    touch "$FIRST_RUN_FLAG"
+
+    # Shutdown MariaDB server after setup is done
+    mysqladmin --protocol=socket -u root shutdown
+    wait $mysqld_pid
+else
+    echo "Database already initialized, skipping setup."
 fi
 
+# Start MariaDB normally (this is the default action on subsequent runs)
+echo "Starting MariaDB server..."
 exec mysqld_safe
-
