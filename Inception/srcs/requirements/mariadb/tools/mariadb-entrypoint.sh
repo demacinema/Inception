@@ -11,6 +11,11 @@ ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
 if [ ! -e "$FIRST_RUN_FLAG" ]; then
     echo "First run detected, initializing the database..."
 
+    # **NEW**: Modify MariaDB config to allow connections from other containers
+    echo "[mysqld]" >> /etc/my.cnf.d/mariadb-server.cnf
+    echo "bind-address = 0.0.0.0" >> /etc/my.cnf.d/mariadb-server.cnf
+    echo "skip-networking = 0" >> /etc/my.cnf.d/mariadb-server.cnf
+
     # Fix permissions on the MySQL data directory (important)
     chown -R mysql:mysql /var/lib/mysql
 
