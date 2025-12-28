@@ -1,0 +1,92 @@
+1. Preparation
+Make sure you are running this on a VM, as required by the subject.
+Ensure Docker and Docker Compose are installed and running.
+2. Build and Launch
+Clean up any previous containers/volumes:
+
+Run: make fclean
+This will remove all containers, networks, and volumes related to your project.
+Build and start all services:
+
+Run: make build
+This will build all Docker images and start the containers.
+Check running containers:
+
+Run: docker ps
+Confirm that all expected containers (nginx, wordpress, mariadb, redis, ftp, adminer, static-site, portainer) are up.
+3. Functional Tests
+Mandatory Services
+NGINX:
+
+Open https://demrodri.42.fr in your browser (or use your login domain).
+Confirm it loads over HTTPS (TLSv1.2/1.3).
+Check that only port 443 is open for NGINX.
+WordPress:
+
+Access the WordPress site via NGINX.
+Log in with both admin and regular user credentials.
+Confirm you can create posts/pages.
+MariaDB:
+
+Confirm WordPress connects to MariaDB (site loads, no DB errors).
+Check that the database and users are created as expected.
+Volumes:
+
+Stop and restart containers (make down then make build).
+Confirm WordPress data and DB persist (no data loss).
+Network:
+
+Confirm all containers are on the same custom docker-network.
+Bonus Services
+Redis:
+
+Confirm WordPress caching works (install Redis plugin if needed).
+FTP:
+
+Connect to FTP server using provided credentials.
+Confirm access to WordPress files.
+Adminer:
+
+Access Adminer at http://localhost:8080.
+Log in and view/manage the database.
+Static Site:
+
+Access the static site at http://localhost:80.
+Portainer:
+
+Access Portainer at http://localhost:9000 or https://localhost:9443.
+Confirm you can manage Docker containers.
+4. Security and Compliance Checks
+No passwords in Dockerfiles:
+
+Double-check Dockerfiles for hardcoded secrets.
+Environment variables and secrets:
+
+Confirm sensitive info is passed via .env and secrets (update to use Docker secrets if needed).
+No infinite loops/tail -f:
+
+Check entrypoint scripts for forbidden patterns.
+Domain name:
+
+Confirm demrodri.42.fr resolves to your VM’s IP.
+5. Logs and Debugging
+View logs:
+
+Run: make logs
+Check for errors or warnings in container logs.
+Check container health:
+
+Run: docker ps --format "table {{.Names}}\t{{.Status}}"
+All containers should show “Up”.
+6. Clean Up
+Stop all containers:
+
+Run: make down
+Remove all data:
+
+Run: make fclean
+7. Peer-Evaluation Checklist
+All requirements met (see previous analysis).
+Bonus part only evaluated if mandatory is perfect.
+No public credentials in repo.
+All files/folders named correctly.

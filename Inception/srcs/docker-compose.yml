@@ -51,6 +51,7 @@ services:
       - WORDPRESS_USER=${WORDPRESS_USER}
       - WORDPRESS_PASSWORD=${WORDPRESS_PASSWORD}
       - WORDPRESS_EMAIL=${WORDPRESS_EMAIL}
+      - WORDPRESS_DIR=${WORDPRESS_DIR}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     build: requirements/wordpress
