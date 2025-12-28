@@ -1,6 +1,10 @@
+
 1. Preparation
-Make sure you are running this on a VM, as required by the subject.
-Ensure Docker and Docker Compose are installed and running.
+- Make sure you are running this on a VM, as required by the subject.
+
+- Ensure Docker and Docker Compose are installed and running:
+    - run 
+    
 2. Build and Launch
 Clean up any previous containers/volumes:
 

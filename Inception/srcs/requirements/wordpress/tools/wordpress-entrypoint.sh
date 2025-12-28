@@ -37,6 +37,16 @@ if [ ! -e .firstmount ]; then
             --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
             --admin_email="$WORDPRESS_ADMIN_EMAIL"
 
+        # Disable comment notification emails
+        wp option update comments_notify 0 --allow-root
+        wp option update moderation_notify 0 --allow-root
+
+        # Configure default comment settings
+        wp option update default_comment_status open --allow-root
+        wp option update comment_moderation 0 --allow-root
+        wp option update comment_whitelist 0 --allow-root
+        wp option update require_name_email 0 --allow-root
+
         # Create a regular user if it doesn't already exist
         if ! wp user get "$WORDPRESS_USER" --allow-root > /dev/null 2>&1; then
             wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" --role=author --user_pass="$WORDPRESS_PASSWORD" --allow-root
