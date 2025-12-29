@@ -1,3 +1,4 @@
+# DEFINES ALL SERVICES TO BE RUN IN DOCKER CONTAINERS
 services:
   mariadb:
     container_name: mariadb
@@ -16,6 +17,7 @@ services:
     networks:
       - docker-network
     image: mariadb
+
   nginx:
     container_name: nginx
     init: true
@@ -26,15 +28,15 @@ services:
       - .env
     build: requirements/nginx
     ports:
-      - "443:443" #https
+      - "443:443" #https PORT
     volumes:
       - wordpress:/var/www/html 
     networks:
       - docker-network
     depends_on:
       - wordpress
-      - mariadb
     image: nginx
+
   wordpress:
     container_name: wordpress
     init: true
@@ -57,12 +59,14 @@ services:
     build: requirements/wordpress
     volumes:
       - wordpress:/var/www/html
+      # Creats a "portal" between wordpress container and the VM's harddrive (defined in volumes section)
     networks:
       - docker-network
     depends_on:
       - mariadb
       - redis
     image: wordpress
+
   redis:
     build: ./requirements/bonus/redis
     container_name: redis
@@ -70,7 +74,8 @@ services:
     networks:
       - docker-network
     image: redis
-  ftp:
+
+  ftp: # FTP SERVER TO UPLOAD FILES TO WORDPRESS
     build: ./requirements/bonus/ftp
     container_name: ftp
     restart: always
@@ -83,66 +88,77 @@ services:
     volumes:
       - wordpress:/var/www/html
     ports:
-      - "21:21"
-      - "21000-21010:21000-21010"
+      - "21:21" # COMMAND PORT
+      - "21000-21010:21000-21010" # DATA PORTS RANGE FOR PASSIVE MODE
     networks:
       - docker-network
     depends_on:
       - wordpress
     image: ftp
-  adminer:
+
+  adminer: # DATABASE MANAGEMENT INTERFACE
     build: ./requirements/bonus/adminer
     container_name: adminer
     restart: always
     depends_on:
       - mariadb
     ports:
-      - "8080:8080"
+      - "8080:8080" # ACCESS ADMINER VIA http://demrodri.42.fr:8080
     networks:
       - docker-network
     image: adminer
+
   static-site:
     container_name: static-site
     build: ./requirements/bonus/static-site
     restart: always
     ports:
-      - "80:80"
+      - "80:80" # http PORT
     image: static-site
-  portainer:
+
+  portainer: # DOCKER MANAGEMENT INTERFACE
     build: ./requirements/bonus/portainer
     container_name: portainer
     ports:
-      - "8000:8000"
-      - "9443:9443"
-      - "9000:9000"
+      - "8000:8000" # EDGE AGENT PORT - to manage remote Docker environments
+      - "9443:9443" # HTTPS PORT FOR PORTAINER UI
+      - "9000:9000" # HTTP PORT FOR PORTAINER UI
     networks:
       - docker-network
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - portainer:/data
-    image: portainer
+      - /var/run/docker.sock:/var/run/docker.sock # Allows Portainer container to communicate
+      - portainer:/data                           # with the Docker daemon on the host machine
+    image: portainer                              # so it can manage Docker containers
     restart: always
 
+
+# CONNECTS "DOCKER WORLD" WITH "VM's HARDDRIVE's WORLD"
 volumes:
   mariadb:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/data/mariadb
+      device: /home/demrodri/data/mariadb
+
   wordpress:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ${HOME}/data/wordpress
-  portainer:
-    driver_opts:
-      o: bind
-      type: none
-      device: ${HOME}/data/portainer
+      device: /home/demrodri/data/wordpress
 
+  portainer:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/demrodri/data/portainer
+
+
+# DEFINES CUSTOM NETWORK TO CONNECT ALL SERVICES
 networks:
   docker-network:
     name: docker-network
-    driver: bridge
+    driver: bridge # prvides network isolation between host and containers
+                   # allows to resolve service names to IP addresses within the network

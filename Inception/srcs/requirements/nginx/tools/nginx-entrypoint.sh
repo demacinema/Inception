@@ -1,18 +1,11 @@
 #!/bin/bash
 set -e
 
-# On the first container run, generate a certificate and configure the server
-if [ ! -e /etc/.firstrun ]; then
-    # Generate a certificate for HTTPS
-    openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
-        -out '/etc/nginx/ssl/cert.crt' \
-        -keyout '/etc/nginx/ssl/cert.key' \
-        -subj "/CN=$DOMAIN_NAME" \
-         >/dev/null 2>/dev/null
+FIRST_RUN_FLAG="/etc/.firstrun"
 
-    # Configure nginx to serve static WordPress files and to pass PHP requests
-    # to the WordPress container's php-fpm process
-    cat << EOF >> /etc/nginx/http.d/default.conf
+# Configure nginx to serve static WordPress files and to pass PHP requests
+# to the WordPress container's php-fpm process
+cat << EOF > /etc/nginx/http.d/default.conf
 server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
@@ -42,7 +35,23 @@ server {
     }
 }
 EOF
-    touch /etc/.firstrun
+
+# On the first container run, generate a certificate and configure the server
+# So it prevents SSL regeneration on every "compose restart", which
+# could lead to browser warnings about untrusted certificates, or issues with
+# HTTPS connections. If docker compose down is used, then the flag file will be removed.
+if [ ! -e "$FIRST_RUN_FLAG" ]; then
+
+    # Generate a certificate for HTTPS
+    openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
+        -out '/etc/nginx/ssl/cert.crt' \
+        -keyout '/etc/nginx/ssl/cert.key' \
+        -subj "/CN=$DOMAIN_NAME" \
+         >/dev/null 2>/dev/null
+
+    touch "$FIRST_RUN_FLAG"
+    echo "Nginx setup completed."
 fi
 
+# Start nginx in the foreground, so the container doesn't exit (PID 1)
 exec nginx -g 'daemon off;'

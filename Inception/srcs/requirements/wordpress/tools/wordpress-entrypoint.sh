@@ -1,15 +1,21 @@
 #!/bin/bash
 set -e
+
+FIRST_RUN_FLAG="/var/www/html/.firstrun"
+
+# Navigate to the WordPress installation directory
 cd /var/www/html
 
-# Configure PHP-FPM on the first run
-if [ ! -e /etc/.firstrun ]; then
-    sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php82/php-fpm.d/www.conf
-    touch /etc/.firstrun
-fi
+# 1. System fixes
+sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php82/php-fpm.d/www.conf
+sed -i 's/^memory_limit = .*/memory_limit = 512M/' /etc/php82/php.ini
+# Ensure proper permissions for WordPress content directory
+chmod o+w -R /var/www/html/wp-content
 
 # On the first volume mount, download and configure WordPress
-if [ ! -e .firstmount ]; then
+if [ ! -f "$FIRST_RUN_FLAG" ]; then
+
+    # DATABASE SETUP
     # Wait for MariaDB to be ready
     mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
 
@@ -18,7 +24,6 @@ if [ ! -e .firstmount ]; then
         echo "Installing WordPress..."
 
         # Download and configure WordPress
-        sed -i 's/^memory_limit = .*/memory_limit = 512M/' /etc/php82/php.ini
         wp core download --allow-root || true
         wp config create --allow-root \
             --dbhost=mariadb \
@@ -54,13 +59,11 @@ if [ ! -e .firstmount ]; then
     else
         echo "WordPress is already installed."
     fi
-    chmod o+w -R /var/www/html/wp-content
-    touch .firstmount
+    touch "$FIRST_RUN_FLAG"
+    echo "WordPress setup completed."
+else
+    echo "WordPress already initialized, skipping setup."
 fi
 
-# Start PHP-FPM
+# Start PHP-FPM in the foreground, so the container doesn't exit (PID 1)
 exec /usr/sbin/php-fpm82 -F
-
-
-#Make sure /home/demrodri/data/wordpress 
-#is owned by your user and is empty before first install.

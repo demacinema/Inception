@@ -1,28 +1,36 @@
 #!/bin/bash
 set -e
 
+# Ensure the /run/mysqld directory exists with proper ownership
+mkdir -p /run/mysqld
+chown mysql:mysql /run/mysqld
+
 # Path to the .firstrun file
 FIRST_RUN_FLAG="/var/lib/mysql/.firstrun"
 
-# **NEW**: Set the root password explicitly if not already set
+# Set the root password explicitly if not already set
 ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
 
 # Check if this is the first run by looking for the .firstrun file
 if [ ! -e "$FIRST_RUN_FLAG" ]; then
     echo "First run detected, initializing the database..."
 
-    # **NEW**: Modify MariaDB config to allow connections from other containers
-    echo "[mysqld]" >> /etc/my.cnf.d/mariadb-server.cnf
-    echo "bind-address = 0.0.0.0" >> /etc/my.cnf.d/mariadb-server.cnf
-    echo "skip-networking = 0" >> /etc/my.cnf.d/mariadb-server.cnf
+    cat <<EOF > /etc/my.cnf.d/mariadb-server.cnf
+[mysqld]
+user = mysql
+datadir = /var/lib/mysql
+socket = /var/lib/mysql/mysql.sock
+bind-address = 0.0.0.0
+skip-networking = 0
+EOF
 
-    # Fix permissions on the MySQL data directory (important)
+    # Makes sure that Makefile's created folder (demrodri) passes its ownership to mysql user
     chown -R mysql:mysql /var/lib/mysql
 
     # Initialize the database if it's the first run
     mysql_install_db --datadir=/var/lib/mysql --user=mysql --skip-test-db --auth-root-authentication-method=socket
 
-    # Start the MariaDB server in the background to allow for database creation
+    # Start the MariaDB server in the background and capture its PID
     mysqld_safe &
     mysqld_pid=$!
 
@@ -51,12 +59,14 @@ if [ ! -e "$FIRST_RUN_FLAG" ]; then
     touch "$FIRST_RUN_FLAG"
 
     # Shutdown MariaDB server after setup is done
-    mysqladmin --protocol=socket -u root shutdown
+    mysqladmin --protocol=socket -u root -p"${ROOT_PASSWORD}" shutdown
     wait $mysqld_pid
+
 else
     echo "Database already initialized, skipping setup."
 fi
 
-# Start MariaDB normally (this is the default action on subsequent runs)
+# Start MariaDB as the main process (PID 1) for the container.
 echo "Starting MariaDB server..."
 exec mysqld_safe
+# exec replaces the current shell with the mysqld_safe process, ensuring it runs as PID 1.
