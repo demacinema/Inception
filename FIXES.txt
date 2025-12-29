@@ -1,4 +1,5 @@
-
+❌
+✅
 
 QDO INICIA:
     - whatsapp web
@@ -13,13 +14,13 @@ WORDPRESS
 
 FIXES
     - arrumar para usar o docker secrets;
-    - qdo make fclean, nao apaga as pastas dentro de data/
-    - nao esta criando o usuario demrodri no WordPress. Necessario?
+    - qdo make fclean, nao apaga as pastas dentro de data/ ✅
+    - nao esta criando o usuario demrodri no WordPress. Necessario? ✅
 
 
 
 FAZENDO
     - mudei Makefile para apagar tambem as pastas de /data
     - checando primeiro o Wordpress / http / https = ta dando ruim quando fclean e build
-    fail no exec + nao ta copiando os arquivos pro data/wordpress ...
+    fail no exec + nao ta copiando os arquivos pro data/wordpress ... ✅
     testar mais uma vez do virgem (na 42 melhor teste)

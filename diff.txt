@@ -1,0 +1,276 @@
+diff --git a/FIXES.txt b/FIXES.txt
+index d08538b..6461b6f 100644
+--- a/FIXES.txt
++++ b/FIXES.txt
+@@ -1,4 +1,5 @@
+-
++❌
++✅
+ 
+ QDO INICIA:
+     - whatsapp web
+@@ -13,13 +14,13 @@ WORDPRESS
+ 
+ FIXES
+     - arrumar para usar o docker secrets;
+-    - qdo make fclean, nao apaga as pastas dentro de data/
+-    - nao esta criando o usuario demrodri no WordPress. Necessario?
++    - qdo make fclean, nao apaga as pastas dentro de data/ ✅
++    - nao esta criando o usuario demrodri no WordPress. Necessario? ✅
+ 
+ 
+ 
+ FAZENDO
+     - mudei Makefile para apagar tambem as pastas de /data
+     - checando primeiro o Wordpress / http / https = ta dando ruim quando fclean e build
+-    fail no exec + nao ta copiando os arquivos pro data/wordpress ...
++    fail no exec + nao ta copiando os arquivos pro data/wordpress ... ✅
+     testar mais uma vez do virgem (na 42 melhor teste)
+\ No newline at end of file
+
+
+
+
+diff --git a/Inception/Makefile b/Inception/Makefile
+index 1ed020a..cd82086 100644
+--- a/Inception/Makefile
++++ b/Inception/Makefile
+@@ -19,9 +19,9 @@ re: down create_dirs make_dir_up_build
+ 
+ clean: down
+ 	@printf "Cleaning configuration ${name}...\n"
+-	@docker compose -f $(DOCKER_COMPOSE_FILE) down
++	@docker system prune --force --filter "label=project=${name}"
+ 
+-fclean: down
++fclean: clean
+ 	@printf "Total clean of all configurations docker\n"
+ 	@docker compose -f $(DOCKER_COMPOSE_FILE) down -v
+ 	@sudo rm -rf /home/$(USER)/data
+@@ -43,4 +43,26 @@ make_dir_up:
+ 
+ make_dir_up_build:
+ 	@printf "Building configuration ${name}...\n"
+-	@docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
+\ No newline at end of file
++	@docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
++	@printf "Waiting for WordPress to configure..."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf "."
++	@sleep 2
++	@printf ".\n"	
++	@printf "Containers ${name} launched!\n"
+\ No newline at end of file
+diff --git a/Inception/srcs/docker-compose.yml b/Inception/srcs/docker-compose.yml
+index a4e7569..e4d0772 100644
+--- a/Inception/srcs/docker-compose.yml
++++ b/Inception/srcs/docker-compose.yml
+@@ -56,7 +56,8 @@ services:
+       - REDIS_PORT=6379
+     build: requirements/wordpress
+     volumes:
+-      - wordpress:/var/www/html
++    # 
++      - ${HOME}/data/wordpress:/var/www/html
+     networks:
+       - docker-network
+     depends_on:
+@@ -126,10 +127,10 @@ services:
+ volumes:
+   mariadb:
+     driver: local
+-    driver_opts:
+-      type: none
+-      o: bind
+-      device: ${HOME}/data/mariadb
++    # driver_opts:
++    #   type: none
++    #   o: bind
++    #   device: ${HOME}/data/mariadb
+   wordpress:
+     driver: local
+     driver_opts:
+diff --git a/Inception/srcs/requirements/bonus/static-site/rocketProject/css/style.css b/Inception/srcs/requirements/bonus/static-site/rocketProject/css/style.css
+index 8d10469..b0fffd6 100644
+--- a/Inception/srcs/requirements/bonus/static-site/rocketProject/css/style.css
++++ b/Inception/srcs/requirements/bonus/static-site/rocketProject/css/style.css
+@@ -36,7 +36,7 @@
+ html {
+   line-height: 1.5;
+   /* 1 */
+-  -webkit-text-size-adjust: 100%;
++  -webkit-text-size-adjust: 100;
+   /* 2 */
+   -moz-tab-size: 4;
+   /* 3 */
+@@ -137,7 +137,7 @@ Add the correct font size in all browsers.
+ */
+ 
+ small {
+-  font-size: 80%;
++  font-size: 80;
+ }
+ 
+ /*
+@@ -146,7 +146,7 @@ Prevent `sub` and `sup` elements from affecting the line height in all browsers.
+ 
+ sub,
+ sup {
+-  font-size: 75%;
++  font-size: 75;
+   line-height: 0;
+   position: relative;
+   vertical-align: baseline;
+@@ -188,7 +188,7 @@ select,
+ textarea {
+   font-family: inherit;
+   /* 1 */
+-  font-size: 100%;
++  font-size: 100;
+   /* 1 */
+   font-weight: inherit;
+   /* 1 */
+@@ -409,7 +409,7 @@ Constrain images and videos to the parent width and preserve their intrinsic asp
+ 
+ img,
+ video {
+-  max-width: 100%;
++  max-width: 100;
+   height: auto;
+ }
+ 
+@@ -596,15 +596,15 @@ video {
+ }
+ 
+ .w-full {
+-  width: 100%;
++  width: 100;
+ }
+ 
+ .w-1\/2 {
+-  width: 50%;
++  width: 50;
+ }
+ 
+ .w-2\/3 {
+-  width: 66.666667%;
++  width: 66.666667;
+ }
+ 
+ .w-48 {
+@@ -624,15 +624,15 @@ video {
+ }
+ 
+ @keyframes open-menu {
+-  0% {
++  0 {
+     transform: scaleY(0);
+   }
+ 
+-  80% {
++  80 {
+     transform: scaleY(1.2);
+   }
+ 
+-  100% {
++  100 {
+     transform: scaleY(1);
+   }
+ }
+@@ -1194,11 +1194,11 @@ video {
+   }
+ 
+   .sm\:w-1\/2 {
+-    width: 50%;
++    width: 50;
+   }
+ 
+   .sm\:w-5\/6 {
+-    width: 83.333333%;
++    width: 83.333333;
+   }
+ 
+   .sm\:flex-row {
+diff --git a/Inception/srcs/requirements/wordpress/tools/wordpress-entrypoint.sh b/Inception/srcs/requirements/wordpress/tools/wordpress-entrypoint.sh
+index d466483..013f8b2 100644
+--- a/Inception/srcs/requirements/wordpress/tools/wordpress-entrypoint.sh
++++ b/Inception/srcs/requirements/wordpress/tools/wordpress-entrypoint.sh
+@@ -8,10 +8,20 @@ if [ ! -e /etc/.firstrun ]; then
+     touch /etc/.firstrun
+ fi
+ 
++# Use a first-run flag inside the bind-mounted WordPress folder
++FIRSTMOUNT_FLAG="/var/www/html/.firstmount"
++
+ # On the first volume mount, download and configure WordPress
+-if [ ! -e .firstmount ]; then
++if [ ! -e "$FIRSTMOUNT_FLAG" ]; then
++
+     # Wait for MariaDB to be ready
+-    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
++#    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
++    echo "Waiting for MariaDB to be ready..."
++    until wp db check --allow-root > /dev/null 2>&1; do
++        printf "."
++        sleep 2
++    done
++    echo "MariaDB is ready."
+ 
+     # Check if WordPress is already installed
+     if [ ! -f wp-config.php ]; then
+@@ -55,7 +65,9 @@ if [ ! -e .firstmount ]; then
+         echo "WordPress is already installed."
+     fi
+     chmod o+w -R /var/www/html/wp-content
+-    touch .firstmount
++
++    # Create the PERSISTENT first-mount flag
++    touch "$FIRSTMOUNT_FLAG"
+ fi
+ 
+ # Start PHP-FPM
+diff --git a/TESTES.txt b/TESTES.txt
+index 33cb726..4ad28ed 100644
+--- a/TESTES.txt
++++ b/TESTES.txt
+@@ -1,13 +1,18 @@
++❌✅
+ 
+-1. Preparation
+-- Make sure you are running this on a VM, as required by the subject.
+ 
+-- Ensure Docker and Docker Compose are installed and running:
+-    - run 
+-    
+-2. Build and Launch
++✅1. Preparation
++✅- Make sure you are running this on a VM, as required by the subject.
++
++✅- Ensure Docker and Docker Compose are installed and running
++    - docker --version
++    - docker compose --version
++
++✅2. Build and Launch
+ Clean up any previous containers/volumes:
+ 
++
++
+ Run: make fclean
+ This will remove all containers, networks, and volumes related to your project.
+ Build and start all services:

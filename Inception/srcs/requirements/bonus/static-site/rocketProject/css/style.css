@@ -36,7 +36,7 @@
 html {
   line-height: 1.5;
   /* 1 */
-  -webkit-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100;
   /* 2 */
   -moz-tab-size: 4;
   /* 3 */
@@ -137,7 +137,7 @@ Add the correct font size in all browsers.
 */
 
 small {
-  font-size: 80%;
+  font-size: 80;
 }
 
 /*
@@ -146,7 +146,7 @@ Prevent `sub` and `sup` elements from affecting the line height in all browsers.
 
 sub,
 sup {
-  font-size: 75%;
+  font-size: 75;
   line-height: 0;
   position: relative;
   vertical-align: baseline;
@@ -188,7 +188,7 @@ select,
 textarea {
   font-family: inherit;
   /* 1 */
-  font-size: 100%;
+  font-size: 100;
   /* 1 */
   font-weight: inherit;
   /* 1 */
@@ -409,7 +409,7 @@ Constrain images and videos to the parent width and preserve their intrinsic asp
 
 img,
 video {
-  max-width: 100%;
+  max-width: 100;
   height: auto;
 }
 
@@ -596,15 +596,15 @@ video {
 }
 
 .w-full {
-  width: 100%;
+  width: 100;
 }
 
 .w-1\/2 {
-  width: 50%;
+  width: 50;
 }
 
 .w-2\/3 {
-  width: 66.666667%;
+  width: 66.666667;
 }
 
 .w-48 {
@@ -624,15 +624,15 @@ video {
 }
 
 @keyframes open-menu {
-  0% {
+  0 {
     transform: scaleY(0);
   }
 
-  80% {
+  80 {
     transform: scaleY(1.2);
   }
 
-  100% {
+  100 {
     transform: scaleY(1);
   }
 }
@@ -1194,11 +1194,11 @@ video {
   }
 
   .sm\:w-1\/2 {
-    width: 50%;
+    width: 50;
   }
 
   .sm\:w-5\/6 {
-    width: 83.333333%;
+    width: 83.333333;
   }
 
   .sm\:flex-row {

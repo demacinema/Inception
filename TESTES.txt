@@ -1,12 +1,17 @@
+❌✅
 
-1. Preparation
-- Make sure you are running this on a VM, as required by the subject.
 
-- Ensure Docker and Docker Compose are installed and running:
-    - run 
-    
-2. Build and Launch
+✅1. Preparation
+✅- Make sure you are running this on a VM, as required by the subject.
+
+✅- Ensure Docker and Docker Compose are installed and running
+    - docker --version
+    - docker compose --version
+
+✅2. Build and Launch
 Clean up any previous containers/volumes:
+
+
 
 Run: make fclean
 This will remove all containers, networks, and volumes related to your project.

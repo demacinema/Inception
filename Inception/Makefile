@@ -19,9 +19,9 @@ re: down create_dirs make_dir_up_build
 
 clean: down
 	@printf "Cleaning configuration ${name}...\n"
-	@docker compose -f $(DOCKER_COMPOSE_FILE) down
+	@docker system prune --force --filter "label=project=${name}"
 
-fclean: down
+fclean: clean
 	@printf "Total clean of all configurations docker\n"
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down -v
 	@sudo rm -rf /home/$(USER)/data
@@ -44,3 +44,25 @@ make_dir_up:
 make_dir_up_build:
 	@printf "Building configuration ${name}...\n"
 	@docker-compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
+	@printf "Waiting for WordPress to configure..."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf "."
+	@sleep 2
+	@printf ".\n"	
+	@printf "Containers ${name} launched!\n"

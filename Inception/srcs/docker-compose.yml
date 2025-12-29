@@ -56,7 +56,8 @@ services:
       - REDIS_PORT=6379
     build: requirements/wordpress
     volumes:
-      - wordpress:/var/www/html
+    # 
+      - ${HOME}/data/wordpress:/var/www/html
     networks:
       - docker-network
     depends_on:
@@ -126,10 +127,10 @@ services:
 volumes:
   mariadb:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HOME}/data/mariadb
+    # driver_opts:
+    #   type: none
+    #   o: bind
+    #   device: ${HOME}/data/mariadb
   wordpress:
     driver: local
     driver_opts:

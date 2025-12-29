@@ -8,10 +8,20 @@ if [ ! -e /etc/.firstrun ]; then
     touch /etc/.firstrun
 fi
 
+# Use a first-run flag inside the bind-mounted WordPress folder
+FIRSTMOUNT_FLAG="/var/www/html/.firstmount"
+
 # On the first volume mount, download and configure WordPress
-if [ ! -e .firstmount ]; then
+if [ ! -e "$FIRSTMOUNT_FLAG" ]; then
+
     # Wait for MariaDB to be ready
-    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
+#    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
+    echo "Waiting for MariaDB to be ready..."
+    until wp db check --allow-root > /dev/null 2>&1; do
+        printf "."
+        sleep 2
+    done
+    echo "MariaDB is ready."
 
     # Check if WordPress is already installed
     if [ ! -f wp-config.php ]; then
@@ -55,7 +65,9 @@ if [ ! -e .firstmount ]; then
         echo "WordPress is already installed."
     fi
     chmod o+w -R /var/www/html/wp-content
-    touch .firstmount
+
+    # Create the PERSISTENT first-mount flag
+    touch "$FIRSTMOUNT_FLAG"
 fi
 
 # Start PHP-FPM
