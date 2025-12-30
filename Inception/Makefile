@@ -29,12 +29,14 @@ clean: down
 
 fclean:
 	@printf "Full clean of configuration ${name}...\n"
-	@${COMPOSE} down -v
-	@docker system prune -a -f
+	@${COMPOSE} down -v --rmi all --remove-orphans
+	@docker system prune -a --volumes -f
 	@sudo rm -rf $(DATA_DIR)
 	@printf "Cleaning completed.\n"
 
 re: fclean all
+	@printf "Rebuilding configuration ${name}...\n"
+	@${COMPOSE} up -d --build --force-recreate
 
 re_clean: fclean
 	@${COMPOSE} up -d --build --no-cache
@@ -52,6 +54,9 @@ create_dirs:
 	@mkdir -p $(WORDPRESS_DATA_DIR)
 	@mkdir -p $(MARIADB_DATA_DIR)
 	@mkdir -p $(PORTAINER_DATA_DIR)
+	@chmod 777 $(WORDPRESS_DATA_DIR)
+	@chmod 777 $(MARIADB_DATA_DIR)
+	@chmod 777 $(PORTAINER_DATA_DIR)
 
 # -------------- TESTS --------------
 test_mariadb: create_dirs host_check

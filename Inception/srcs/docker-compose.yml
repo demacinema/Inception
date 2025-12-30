@@ -39,6 +39,9 @@ services:
 
   wordpress:
     container_name: wordpress
+    build: 
+        context: ./requirements/wordpress
+        dockerfile: Dockerfile
     init: true
     restart: always
     environment:
@@ -56,7 +59,6 @@ services:
       - WORDPRESS_DIR=${WORDPRESS_DIR}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    build: requirements/wordpress
     volumes:
       - wordpress:/var/www/html
       # Creats a "portal" between wordpress container and the VM's harddrive (defined in volumes section)
