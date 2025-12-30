@@ -9,15 +9,15 @@ cd /var/www/html
 # 1. System fixes
 sed -i 's/listen = 127.0.0.1:9000/listen = 9000/g' /etc/php82/php-fpm.d/www.conf
 sed -i 's/^memory_limit = .*/memory_limit = 512M/' /etc/php82/php.ini
-# Ensure proper permissions for WordPress content directory
-chmod o+w -R /var/www/html/wp-content
 
 # On the first volume mount, download and configure WordPress
 if [ ! -f "$FIRST_RUN_FLAG" ]; then
 
     # DATABASE SETUP
     # Wait for MariaDB to be ready
-    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
+    until mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null; do
+	 sleep 2
+    done
 
     # Check if WordPress is already installed
     if [ ! -f wp-config.php ]; then
@@ -59,11 +59,27 @@ if [ ! -f "$FIRST_RUN_FLAG" ]; then
     else
         echo "WordPress is already installed."
     fi
+
+    # Ensure proper permissions for WordPress content directory
+#    echo "Setting permissions..."
+#    chown -R 1000:1000 /var/www/html
+#    chmod -R 755 /var/www/html
+ #   chmod o+w -R /var/www/html/wp-content
+
     touch "$FIRST_RUN_FLAG"
     echo "WordPress setup completed."
 else
     echo "WordPress already initialized, skipping setup."
 fi
+
+echo "Checking permissions..."
+if [ -d "/var/www/html/wp-content" ]; then
+	chmod -R 775 /var/www/html/wp-content
+	chown -R nobody:nobody /var/www/html/wp-content
+	echo "wp-content altered"
+fi
+
+echo "WordPress OK"
 
 # Start PHP-FPM in the foreground, so the container doesn't exit (PID 1)
 exec /usr/sbin/php-fpm82 -F
