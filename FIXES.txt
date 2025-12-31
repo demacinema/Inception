@@ -23,3 +23,46 @@ FAZENDO
     - checando primeiro o Wordpress / http / https = ta dando ruim quando fclean e build
     fail no exec + nao ta copiando os arquivos pro data/wordpress ...
     testar mais uma vez do virgem (na 42 melhor teste)
+
+
+
+
+CHANGES WHEN TESTING:
+
+- sudo apk add docker-compose
+- COMPOSE := doker-compose
+
+
+HAD TO GO BACK, because of issues when make re
+- create_dirs:
+	@printf "Creating data directories...\n"
+	@mkdir -p $(DATA_DIR)
+	@sudo chmod -R 777 $(DATA_DIR)
+
+- delete (dont need any more, folders are created by Docker)
+    WORDPRESS_DATA_DIR := $(DATA_DIR)/wordpress
+    MARIADB_DATA_DIR := $(DATA_DIR)/mariadb
+    PORTAINER_DATA_DIR := $(DATA_DIR)/portainer
+
+- make re: fclean build (just these two, as i was having issues with make re)
+
+
+
+
+
+>>>>>>>>>>>>>>>>>>>>
+
+- remove the hifen between docker and compose in Makefile
+- install docker-cli-compose
+- insert sudo before grep in host_check
+
+- the subject says no bind mounts!!!
+- so, need to remove volumes from docker-compose.yml and create docker secrets for mariadb and wordpress
+- also, need to remove the data folders creation from Makefile, because no bind mounts, so no need to create data folders
+
+- need to create a script to initialize the wordpress database and user, because no bind mounts, so no way to copy the wp-config.php file to the data folder
+- will do that using a docker-entrypoint-initdb.d script for mariadb, that will create the database and user for wordpress
+- also, need to create a script to initialize the wordpress installation, because no bind mounts, so no way to copy the wp-config.php file to the data folder
+- will do that using a docker-entrypoint-initdb.d script for wordpress, that will copy the wp-config.php file to the wordpress container
+
+- need to check why Apache is being downloaded in FOREGROUND, when using docker-compose up -d
