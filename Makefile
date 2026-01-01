@@ -38,6 +38,22 @@ fclean:
 	@sudo rm -rf $(DATA_DIR)
 	@printf "Cleaning completed.\n"
 
+nuke:
+	@printf "⚠️  WARNING: THIS WILL DELETE ALL DOCKER DATA\n"
+	@sh -c '\
+		printf "Type YES to continue: " ; \
+		read confirm ; \
+		if [ "$$confirm" = "YES" ]; then \
+			printf "Stopping containers...\n" ; docker ps -q | xargs -r docker stop ; \
+			printf "Removing containers...\n" ; docker ps -aq | xargs -r docker rm -f ; \
+			printf "Removing images...\n" ; docker images -q | xargs -r docker rmi -f ; \
+			printf "Removing volumes...\n" ; docker volume ls -q | xargs -r docker volume rm ; \
+			printf "Removing custom networks...\n" ; docker network ls --filter type=custom -q | xargs -r docker network rm ; \
+			printf "Docker fully wiped.\n" ; \
+		else \
+			printf "Aborted.\n" ; \
+		fi'
+
 re: fclean all
 	@printf "Rebuilding configuration ${name}...\n"
 	@${COMPOSE} up -d --build --force-recreate
@@ -90,7 +106,7 @@ test_portainer: create_dirs host_check
 	@${COMPOSE} logs -f portainer
 
 .PHONY: all build build_no_cache down re re_clean fclean logs create_dirs host_check \
-	 test_mariadb test_wordpress test_nginx test_ftp test_adminer test_portainer
+	 test_mariadb test_wordpress test_nginx test_ftp test_adminer test_portainer nuke
 
 # Creates container while also checking logs for mariadb):
 # docker compose -f srcs/docker-compose.yml logs -f mariadb 

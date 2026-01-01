@@ -151,6 +151,7 @@ services:
 # CONNECTS "DOCKER WORLD" WITH "VM's HARDDRIVE's WORLD"
 volumes:
   mariadb:
+    name: mariadb
     driver: local
     driver_opts:
       type: none
@@ -158,6 +159,7 @@ volumes:
       device: /home/demrodri/data/mariadb
 
   wordpress:
+    name: wordpress
     driver: local
     driver_opts:
       type: none
@@ -165,6 +167,7 @@ volumes:
       device: /home/demrodri/data/wordpress
 
   portainer:
+    name: portainer
     driver: local
     driver_opts:
       type: none
