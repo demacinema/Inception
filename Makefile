@@ -13,7 +13,7 @@ name = inception
 
 all: create_dirs host_check
 	@printf "Launching configuration ${name}...\n"
-	@${COMPOSE} up -d
+	@${COMPOSE} up -d --build
 
 build: create_dirs host_check
 	@printf "Building configuration ${name}...\n"
