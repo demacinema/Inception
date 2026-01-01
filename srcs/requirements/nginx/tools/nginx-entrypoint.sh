@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e
 
+echo "Waiting for WordPress (PHP-FPM)..."
+
+# Wait until the WordPress container's PHP-FPM service is available
+until nc -z wordpress 9000; do
+	echo "Waiting for wordpress:9000..."
+	sleep 1
+done
+
 FIRST_RUN_FLAG="/etc/.firstrun"
 
 # Configure nginx to serve static WordPress files and to pass PHP requests
