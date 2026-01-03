@@ -74,11 +74,11 @@ host_check:
 create_dirs:
 	@printf "Creating data directories...\n"
 	@sudo mkdir -p $(WORDPRESS_DATA_DIR)
-	@sudo chmod 777 -R $(WORDPRESS_DATA_DIR)
+	@sudo chmod 775 -R $(WORDPRESS_DATA_DIR)
 	@sudo mkdir -p $(MARIADB_DATA_DIR)
-	@sudo chmod 777 -R $(MARIADB_DATA_DIR)
+	@sudo chmod 775 -R $(MARIADB_DATA_DIR)
 	@sudo mkdir -p $(PORTAINER_DATA_DIR)
-	@sudo chmod 777 -R $(PORTAINER_DATA_DIR)
+	@sudo chmod 775 -R $(PORTAINER_DATA_DIR)
 
 # -------------- TESTS --------------
 test_mariadb: create_dirs host_check

@@ -68,6 +68,23 @@ Clone the repository and run: `make`
 
 ### To remove containers, images, and volumes: `make fclean`
 ---
+
+# Resources
+
+Docker Documentation: https://docs.docker.com/
+
+Docker Compose Documentation: https://docs.docker.com/compose/
+
+NGINX Documentation: https://nginx.org/en/docs/
+
+WordPress Documentation: https://wordpress.org/documentation/
+
+MariaDB Documentation: https://mariadb.com/kb/en/documentation/
+
+In this exercise, AI was used to understand new concepts, and also to help on the formulation of documentation files.
+
+---
+
 ## Environment Variables and Secrets
 
 - Environment variables are stored in a .env file and are not committed to the repository. 
@@ -77,8 +94,6 @@ Clone the repository and run: `make`
 - No credentials are hardcoded in Dockerfiles.
 
 This approach ensures better security and follows Docker best practices.
-
-
 
 # Design Choices and Comparisons
 ## Virtual Machines vs Docker
@@ -114,17 +129,6 @@ Docker volumes are managed by Docker and better suited for persistent applicatio
 Volumes are used to store the database and WordPress files reliably.
 
 ---
-# Resources
-
-Docker Documentation: https://docs.docker.com/
-
-Docker Compose Documentation: https://docs.docker.com/compose/
-
-NGINX Documentation: https://nginx.org/en/docs/
-
-WordPress Documentation: https://wordpress.org/documentation/
-
-MariaDB Documentation: https://mariadb.com/kb/en/documentation/
 
 # Notes
 
